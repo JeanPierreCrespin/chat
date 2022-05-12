@@ -1,0 +1,139 @@
+<!-- <!DOCTYPE html>
+<html>
+    <head>
+        <title>Chat WebSocket</title>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.4.0/sockjs.js"></script>
+        <!-- <script src="resources/js/sockjs-0.3.4.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
+        <script type="text/javascript">
+            var stompClient = null;
+            
+            function setConnected(connected) {
+                document.getElementById('connect').disabled = connected;
+                document.getElementById('disconnect').disabled = !connected;
+                document.getElementById('conversationDiv').style.visibility 
+                  = connected ? 'visible' : 'hidden';
+                document.getElementById('response').innerHTML = '';
+            }
+            
+            function connect() {
+                var socket = new SockJS('/chat');
+                stompClient = Stomp.over(socket);  
+                stompClient.connect({}, function(frame) {
+                    setConnected(true);
+                    console.log('Connected: ' + frame);
+                    stompClient.subscribe('/topic/messages', function(messageOutput) {
+                        showMessageOutput(JSON.parse(messageOutput.body));
+                    });
+                });
+            }
+            
+            function disconnect() {
+                if(stompClient != null) {
+                    stompClient.disconnect();
+                }
+                setConnected(false);
+                console.log("Disconnected");
+            }
+            
+            function sendMessage() {
+                var from = document.getElementById('from').value;
+                var text = document.getElementById('text').value;
+                stompClient.send("/app/chat", {}, 
+                  JSON.stringify({'from':from, 'text':text}));
+            }
+            
+            function showMessageOutput(messageOutput) {
+                var response = document.getElementById('response');
+                var p = document.createElement('p');
+                p.style.wordWrap = 'break-word';
+                p.appendChild(document.createTextNode(messageOutput.from + ": " 
+                  + messageOutput.text + " (" + messageOutput.time + ")"));
+                response.appendChild(p);
+            }
+        </script>
+    </head>
+    <body onload="disconnect()">
+        <div>
+            <div>
+                <input type="text" id="from" placeholder="Choose a nickname"/>
+            </div>
+            <br />
+            <div>
+                <button id="connect" onclick="connect();">Connect</button>
+                <button id="disconnect" disabled="disabled" onclick="disconnect();">
+                    Disconnect
+                </button>
+            </div>
+            <br />
+            <div id="conversationDiv">
+                <input type="text" id="text" placeholder="Write a message..."/>
+                <button id="sendMessage" onclick="sendMessage();">Send</button>
+                <p id="response"></p>
+            </div>
+        </div>
+
+    </body>
+</html> -->
+
+<html>
+    <head>
+        <title>Chat</title>
+    </head>
+    <body>
+
+        <table>
+            <tr>
+                <td colspan="2">
+                    <input type="text" id="username" placeholder="Username"/>
+                    <button type="button" onclick="connect();" >Connect</button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <textarea readonly="true" rows="10" cols="80" id="log"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="text" size="51" id="msg" placeholder="Message"/>
+                    <button type="button" onclick="send();" >Send</button>
+                </td>
+            </tr>
+        </table>
+    </body>
+
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.4.0/sockjs.js"></script>
+
+    <script type="text/javascript">
+    var ws;
+
+    function connect() {
+        var username = document.getElementById("username").value;
+        
+        var host = document.location.host;
+        var pathname = document.location.pathname;
+        
+        let urii = 'ws://' +host  + pathname +'Chat/'+ username;
+       ws = new WebSocket(urii);
+       // ws = new WebSocket("ws://localhost:8080/chat/"+username);
+
+        ws.onmessage = function(event) {
+        var log = document.getElementById("log");
+            console.log(event.data);
+            var message = JSON.parse(event.data);
+            log.innerHTML += message.from + " : " + message.content + "\n";
+        };
+    }
+
+    function send() {
+        var content = document.getElementById("msg").value;
+        var json = JSON.stringify({
+            "content":content
+        });
+
+        ws.send(json);
+    }
+    </script>
+
+</html>
